@@ -1,25 +1,25 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-const express = require("express");
-const bodyparser = require("body-parser");
-const helmet = require("helmet");
-const cors = require("cors");
+const express = require('express');
+const bodyparser = require('body-parser');
+const helmet = require('helmet');
+const cors = require('cors');
 
 const app = express();
 
-const db = require("./db");
+const db = require('./db');
 
-const days = require("./routes/days");
-const appointments = require("./routes/appointments");
-const interviewers = require("./routes/interviewers");
+const days = require('./routes/days');
+const appointments = require('./routes/appointments');
+const interviewers = require('./routes/interviewers');
 
 function read(file) {
   return new Promise((resolve, reject) => {
     fs.readFile(
       file,
       {
-        encoding: "utf-8"
+        encoding: 'utf-8'
       },
       (error, data) => {
         if (error) return reject(error);
@@ -37,17 +37,17 @@ module.exports = function application(
   app.use(helmet());
   app.use(bodyparser.json());
 
-  app.use("/api", days(db));
-  app.use("/api", appointments(db, actions.updateAppointment));
-  app.use("/api", interviewers(db));
+  app.use('/api', days(db));
+  app.use('/api', appointments(db, actions.updateAppointment));
+  app.use('/api', interviewers(db));
 
-  if (ENV === "development" || ENV === "test") {
+  if (ENV === 'development' || ENV === 'test') {
     Promise.all([
       read(path.resolve(__dirname, `db/schema/create.sql`)),
       read(path.resolve(__dirname, `db/schema/${ENV}.sql`))
     ])
       .then(([create, seed]) => {
-        app.post("/api/debug/reset", (request, response) => {
+        app.post('/api/debug/reset', (request, response) => {
           db.query(create)
             .then(() => db.query(seed))
             .then(() => {
@@ -55,7 +55,7 @@ module.exports = function application(
             });
         });
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(`Error setting up the reset route: ${error}`);
       });
   }
